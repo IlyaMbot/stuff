@@ -1,11 +1,56 @@
 #include <stdio.h>
 #include <math.h>
+#include <stdlib.h>
 #define sign(x) (x==0 ? 0 : (x<0 ? -1 : 1))
 
 int factorial(int n) {
 	if (n<2) return 1;
 	else return n*factorial(n-1);
 }
+
+// обёртка над fopen() с защитой от дурака
+FILE* safe_fopen(const char* filename, const char* mode) {
+	FILE* result;
+	result = fopen(filename, mode);
+	if (result == NULL) {
+		printf("Failed to open file %s!\n\n", filename);
+		exit(1);
+	}
+	return result;
+}
+
+/*
+ Считывает точки x, y из любого файла в дин. память; как пользоваться:
+ double *mx, *my
+ int N = read_points_from("points.txt", &mx, &my);
+ где N - количество точек, которые программе удалось прочесть
+*/
+int read_points_from(const char* filename, double** mx, double** my) {
+	double* mx1 = (double*) malloc (sizeof(double));
+	double* my1 = (double*) malloc (sizeof(double));
+
+	int n = 0;
+
+	FILE* file = safe_fopen(filename, "r");
+
+	while(fscanf(file, "%lf %lf", &mx1[n], &my1[n]) == 2) {
+		n++;
+		mx1 = realloc(mx1, (n+1) * sizeof(double));
+		my1 = realloc(my1, (n+1) * sizeof(double));
+
+		if (mx == NULL || my == NULL) {
+			printf("Out of memory error! %d elements read\n\n", n);
+			exit(1);
+		}
+	}
+
+	fclose(file);
+	*mx = mx1;
+	*my = my1;
+	return n;
+}
+
+//----------------
 
 void plot(double (*f)(double x), FILE* output, double N, double a, double b, double infinity) {
 	double st = (b-a)/N, x, y;
