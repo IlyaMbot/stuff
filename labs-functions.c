@@ -67,6 +67,12 @@ void plot(double (*f)(double x), FILE* output, double N, double a, double b, dou
 	}
 }
 
+void plot_s(double (*f)(double x), const char* output, double N, double a, double b, double inf) {
+	FILE* file = safe_fopen(output, "w");
+	plot(f, file, N, a, b, inf);
+	fclose(file);
+}
+
 double ms(double (*f)(double x), double x1, double x2, double eps) {
 	double x0, e0, la, y1, y2;
 
