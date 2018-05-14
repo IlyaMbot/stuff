@@ -38,7 +38,7 @@ int read_points_from(const char* filename, double** mx, double** my) {
 		mx1 = realloc(mx1, (n+1) * sizeof(double));
 		my1 = realloc(my1, (n+1) * sizeof(double));
 
-		if (mx == NULL || my == NULL) {
+		if (mx1 == NULL || my1 == NULL) {
 			printf("Out of memory error! %d elements read\n\n", n);
 			exit(1);
 		}
