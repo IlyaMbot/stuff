@@ -38,7 +38,7 @@ int read_points_from(const char* filename, double** mx, double** my) {
 		mx1 = realloc(mx1, (n+1) * sizeof(double));
 		my1 = realloc(my1, (n+1) * sizeof(double));
 
-		if (mx == NULL || my == NULL) {
+		if (mx1 == NULL || my1 == NULL) {
 			printf("Out of memory error! %d elements read\n\n", n);
 			exit(1);
 		}
@@ -96,7 +96,7 @@ double fr(double (*f)(double x), double x1, double x2, double eps) {
 		x1 = x2 - (x2-x1)*f(x2)/(f(x2)-f(x1));
 		x2 = x1 - (x1-x2)*f(x1)/(f(x1)-f(x2));
 	}
-	
+
 	return x2;
 }
 
@@ -182,4 +182,43 @@ double dfdx_recur(double (*f)(double x), int i, double x, double h) {
 		 dfdx_recur(f, i-1, x+h, h)
 		-dfdx_recur(f, i-1, x-h, h)
 		)/(2*h);
+}
+
+double akbk(double* my, double (*trig)(double x), double N, double k) {
+	// вместо trig подставляем cos(для a) и sin(для b)
+	int i;
+	double sum = 0;
+	for (i=0; i<N; i++) {
+		sum += my[i] * trig(2*M_PI*i*k/N);
+	}
+	sum *= 2. / N;
+
+	return sum;
+}
+
+double xi (int i, double* a, double* b, double N) {
+	double sum1 = a[0];
+	int n;
+
+	for (n=0; n<N/2; n++) {
+		sum1 += a[n] * cos(2*M_PI*n*i/N) + b[n] * sin(2*M_PI*n*i/N);
+	}
+
+	return sum1;
+}
+
+void check_energy(double* a, double* b, double* y, int n, double* Et1,
+				double* Ew1, double dt, double dw) {
+	double Et = 0., Ew = 0.;
+	int i, k;
+	for (i=0; i<n; i++) {
+		Et += y[i] * y[i];
+	} Et *= dt;
+
+	for (k=0; k<=n/2; k++) {
+		Ew += 0.5 * (a[k] * a[k] + b[k] * b[k]);
+	} Ew /= dw;
+
+	*Et1 = Et;
+	*Ew1 = Ew;
 }
